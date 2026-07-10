@@ -1,0 +1,98 @@
+#include <iostream>
+#include <conio.h>
+#include <stdio.h>
+#include <windows.h>
+#include <string>
+#include <limits>
+using namespace std;
+
+void gotoxy(int x, int y) {
+    HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD pos;
+    pos.X = x;
+    pos.Y = y;
+    SetConsoleCursorPosition(hCon, pos);
+}
+
+struct Encabezado {
+    string numero;
+    string fecha;
+    string cliente;
+    string direccion;
+};
+
+struct Detalle {
+    string descripcion;
+    int cantidad;
+    float precioUnitario;
+    float subtotal;
+};
+
+int main() {
+    Encabezado factura;
+    int numProductos;
+
+    system("cls");
+    gotoxy(10, 2); printf("=== SISTEMA DE FACTURACION ===");
+
+    gotoxy(5, 4); printf("Ingrese numero de factura: ");
+    cin >> factura.numero;
+
+    gotoxy(5, 5); printf("Ingrese fecha (dd/mm/aaaa): ");
+    cin >> factura.fecha;
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    gotoxy(5, 6); printf("Ingrese nombre del cliente: ");
+    getline(cin, factura.cliente);
+
+    gotoxy(5, 7); printf("Ingrese direccion: ");
+    getline(cin, factura.direccion);
+
+    gotoxy(5, 9); printf("Ingrese cantidad de productos: ");
+    cin >> numProductos;
+
+    Detalle item[20];
+
+    for (int i = 0; i < numProductos; i++) {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        gotoxy(5, 11 + i * 4); printf("--- Producto %d ---", i + 1);
+        gotoxy(5, 12 + i * 4); printf("Descripcion: ");
+        getline(cin, item[i].descripcion);
+        gotoxy(5, 13 + i * 4); printf("Cantidad: ");
+        cin >> item[i].cantidad;
+        gotoxy(5, 14 + i * 4); printf("Precio unitario (usar PUNTO para decimales): $");
+        cin >> item[i].precioUnitario;
+        item[i].subtotal = item[i].cantidad * item[i].precioUnitario;
+    }
+
+    system("cls");
+    float total = 0;
+    int linea = 1;
+
+    gotoxy(2, linea++); printf("+-------------------------------------------------------+");
+    gotoxy(2, linea++); printf("| FACTURA N°: %-15s Fecha: %-15s |", factura.numero.c_str(), factura.fecha.c_str());
+    gotoxy(2, linea++); printf("+-------------------------------------------------------+");
+    gotoxy(2, linea++); printf("| Cliente: %-47s |", factura.cliente.c_str());
+    gotoxy(2, linea++); printf("| Direccion: %-45s |", factura.direccion.c_str());
+    gotoxy(2, linea++); printf("+------------------+----------+----------------+------------+");
+    gotoxy(2, linea++); printf("| Descripcion      | Cantidad | Precio Unitario | Subtotal  |");
+    gotoxy(2, linea++); printf("+------------------+----------+----------------+------------+");
+
+    for (int i = 0; i < numProductos; i++) {
+        gotoxy(2, linea++);
+        printf("| %-16s | %8d | $%14.2f | $%8.2f |",
+               item[i].descripcion.c_str(),
+               item[i].cantidad,
+               item[i].precioUnitario,
+               item[i].subtotal);
+        total += item[i].subtotal;
+    }
+
+    gotoxy(2, linea++); printf("+------------------+----------+----------------+------------+");
+    gotoxy(2, linea++); printf("| TOTAL A PAGAR    |          |                | $%8.2f |", total);
+    gotoxy(2, linea++); printf("+-------------------------------------------------------+");
+
+    gotoxy(5, linea + 1); printf("Presione una tecla para salir...");
+    getch();
+    return 0;
+}
